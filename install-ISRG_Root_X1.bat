@@ -14,7 +14,6 @@ mkdir %TMP%\isrgrootx1\
 certutil.exe -urlcache -split -f http://x1.i.lencr.org/ %TMP%\isrgrootx1\ISRGRootX1.crt || goto error
 certutil.exe -addstore "Root" %TMP%\isrgrootx1\ISRGRootX1.crt || goto error
 
-del /q %TMP%\isrgrootx1\
 echo Successful installation!
 
 goto end
@@ -28,4 +27,5 @@ echo "ERROR! Access Denied."
 goto end
 
 :end
+del /q %TMP%\isrgrootx1\
 pause
