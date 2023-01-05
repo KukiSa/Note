@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# A shell script that can be used to automate updating Vaultwarden (direct deployment). Need to install curl and uuid-runtime (uuidgen).
+# A shell script that can be used to automate updating Vaultwarden (direct deployment). Need to install curl, jq and uuid-runtime (uuidgen).
 
 set -euo pipefail
 trap 'rm -rf $vw_temp_path' EXIT
