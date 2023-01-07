@@ -4,13 +4,6 @@ set -eo pipefail
 trap 'rm -rf $vw_temp_path' EXIT
 stty erase ^?
 
-env_pre() {
-    vw_uuid_temp="$(uuidgen | tr -d '-')"
-    vw_temp_path="$(mktemp -d -t bash-private-$vw_uuid_temp-$0-XXXXXX)"
-    vw_temp_out="$vw_temp_path/output"
-    mkdir $vw_temp_out
-}
-
 port_test() {
     local port=$1
     while true; do
@@ -50,6 +43,13 @@ pkg_ins() {
         exit 1
 	fi
     echo "Package Install Completed, continue..."
+}
+
+env_pre() {
+    vw_uuid_temp="$(uuidgen | tr -d '-')"
+    vw_temp_path="$(mktemp -d -t bash-private-$vw_uuid_temp-$0-XXXXXX)"
+    vw_temp_out="$vw_temp_path/output"
+    mkdir $vw_temp_out
 }
 
 install_check() {
