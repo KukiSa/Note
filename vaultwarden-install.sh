@@ -33,15 +33,21 @@ null_check() {
 }
 
 pkg_ins() {
-    source /etc/os-release || source /usr/lib/os-release || exit 1
-	if [[ $ID == "centos"  || $ID == "amzn"  || $ID == "ol" ]]; then
-		yum install -y curl iproute jq openssl util-linux
-	elif [[ $ID == "debian" || $ID == "ubuntu" ]]; then
-		apt-get install -y curl iproute2 jq openssl uuid-runtime
-	else
-		echo "Package Install Failed, exiting..."
+    if [ "$(uname -m)" != "x86_64" ]; then
+        echo "Non-x86_64 architectures are not currently supported, exiting..."
         exit 1
-	fi
+    fi
+    source /etc/os-release || source /usr/lib/os-release || exit 1
+    if [[ $ID == "centos"  || $ID == "amzn"  || $ID == "ol" ]]; then
+        yum update
+        yum install -y curl iproute jq openssl util-linux
+    elif [[ $ID == "debian" || $ID == "ubuntu" ]]; then
+        apt update
+        apt-get install -y curl iproute2 jq openssl uuid-runtime
+    else
+        echo "This distribution is not currently supported, exiting..."
+        exit 1
+    fi
     echo "Package Install Completed, continue..."
 }
 
@@ -196,8 +202,6 @@ WantedBy=multi-user.target
 EOF
     if [ $dbtype == "sqlite" ]; then
         sed -i '5d' /etc/systemd/system/vaultwarden.service
-    else
-        echo ""
     fi
     curl -s https://hub.docker.com/v2/repositories/vaultwarden/server/tags/alpine | jq -r '.images[] | select(.architecture == "amd64") | {architecture, digest}' > /var/lib/vaultwarden/version.json
     systemctl daemon-reload

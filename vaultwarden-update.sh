@@ -23,12 +23,11 @@ while getopts ":f" opt; do
 done
 
 versioncheck() {
-    if [ ! -f /var/lib/vaultwarden/version.json ]
-    then
+    if [ ! -f /var/lib/vaultwarden/version.json ]; then
         echo "/var/lib/vaultwarden/version.json does not exist. To force an update, add the parameter -f . Exiting..."
         exit 1
     fi
-
+    
     if diff $vw_temp_path/latest.json /var/lib/vaultwarden/version.json; then
         echo "No update found yet. To force an update, add the parameter -f . Exiting..."
         exit 1
