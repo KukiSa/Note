@@ -40,10 +40,10 @@ pkg_ins() {
     source /etc/os-release || source /usr/lib/os-release || exit 1
     if [[ $ID == "centos"  || $ID == "amzn"  || $ID == "ol" ]]; then
         yum update
-        yum install -y curl iproute jq openssl util-linux
+        yum install -y coreutils curl iproute jq openssl util-linux
     elif [[ $ID == "debian" || $ID == "ubuntu" ]]; then
         apt update
-        apt-get install -y curl iproute2 jq openssl uuid-runtime
+        apt-get install -y coreutils curl iproute2 jq openssl uuid-runtime
     else
         echo "This distribution is not currently supported, exiting..."
         exit 1
@@ -53,7 +53,7 @@ pkg_ins() {
 
 env_pre() {
     vw_uuid_temp="$(uuidgen | tr -d '-')"
-    vw_temp_path="$(mktemp -d -t bash-private-$vw_uuid_temp-$0-XXXXXX)"
+    vw_temp_path="$(mktemp -d -t bash-private-$vw_uuid_temp-$(basename $0)-XXXXXX)"
     vw_temp_out="$vw_temp_path/output"
     mkdir $vw_temp_out
 }

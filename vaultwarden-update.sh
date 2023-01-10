@@ -6,7 +6,7 @@ set -euo pipefail
 trap 'rm -rf $vw_temp_path' EXIT
 
 vw_uuid_temp="$(uuidgen | tr -d '-')"
-vw_temp_path="$(mktemp -d -t bash-private-$vw_uuid_temp-$0-XXXXXX)"
+vw_temp_path="$(mktemp -d -t bash-private-$vw_uuid_temp-$(basename $0)-XXXXXX)"
 vw_temp_out="$vw_temp_path/output"
 mkdir $vw_temp_out
 
