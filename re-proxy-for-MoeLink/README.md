@@ -1,15 +1,12 @@
-# Introduce
+# Introduction
+This directory stores the configs of the two reverse proxy points for MoeLink.
 
-This directory stores the configuration files of the two reverse proxy nodes of MoeLink.
-
-## Environmental Needs
-Nginx 1.18 and above
-
-LNMP.org One Click Package 1.16 and above
+## Environmental Requirements
+Nginx version 1.18.1 and above installed through LNMP.org one-click script.
 
 ## Directory Structure
 The files `lnmp-listen80` and `lnmp-listen443` are part of the file `/usr/bin/lnmp`.
 
 The file `nginx.conf` is the main Nginx configuration file, and the files `fproxy.conf` and `sslproxy.conf` should be placed in the same directory.
 
-The file `website.conf` is a sample final configuration for the site.
+The file `website.conf` is a sample of final config for the site.
