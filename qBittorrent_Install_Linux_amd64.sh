@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-wget -O /usr/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/x86_64-cmake-icu-qbittorrent-nox
+wget -O /usr/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/x86_64-qbittorrent-nox
+
 chmod +x /usr/bin/qbittorrent-nox
 
 cat > /etc/systemd/system/qbittorrent.service << EOF 
