@@ -7,7 +7,7 @@ trap 'rm -rf $__vw_temp_path; unset __vw_uuid_temp; unset __vw_temp_path; unset 
 
 __vw_uuid_temp="$(uuidgen | tr -d '-')"
 __vw_temp_path="$(mktemp -d -t bash-private-$__vw_uuid_temp-$(basename $0)-XXXXXX)"
-__vw_temp_out="$vw_temp_path/output"
+__vw_temp_out="$__vw_temp_path/output"
 mkdir $__vw_temp_out
 
 curl -s https://hub.docker.com/v2/repositories/vaultwarden/server/tags/alpine | jq -r '.images[] | select(.architecture == "amd64") | {architecture, digest}' > $__vw_temp_path/latest.json
