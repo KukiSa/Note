@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #-------------------------------------------------------
 # Requirement:  Be the `root` user.
-# Note:         `apt` and Systemd commonds are used.
+# Note:         `apt` and Systemd commands are used.
 #-------------------------------------------------------
 # Function:     Install MySQL Server components 5.6.51
 #               on amd64 architecture instance with
@@ -16,8 +16,8 @@
 #-------------------------------------------------------
 
 set -eo pipefail
-trap 'rm -rf $__mysql_install_tmp_path' EXIT
-stty erase ^?
+trap 'rm -rf -- "$__mysql_install_tmp_path"' EXIT
+stty erase ^? 2>/dev/null || true
 
 __mysql_install_tmp_path="$(mktemp -d -t bash-private-XXXXXXXXXX)"
 __mysql_archives_base_url="https://cdn.mysql.com/archives"
@@ -37,14 +37,14 @@ __mysql_install_pkgname_server="mysql-server"_"$__mysql_install_version"-"$__mys
 
 apt update -y && apt install wget -y || exit 1
 
-wget -P $__mysql_install_tmp_path $__mysql_archives_extend_url/$__mysql_install_pkgname_lcommon || exit 1
-wget -P $__mysql_install_tmp_path $__mysql_archives_extend_url/$__mysql_install_pkgname_libmysqlclient18 || exit 1
-wget -P $__mysql_install_tmp_path $__mysql_archives_extend_url/$__mysql_install_pkgname_communityclient || exit 1
-wget -P $__mysql_install_tmp_path $__mysql_archives_extend_url/$__mysql_install_pkgname_client || exit 1
-wget -P $__mysql_install_tmp_path $__mysql_archives_extend_url/$__mysql_install_pkgname_communityserver || exit 1
-wget -P $__mysql_install_tmp_path $__mysql_archives_extend_url/$__mysql_install_pkgname_server || exit 1
+wget -P "$__mysql_install_tmp_path" "$__mysql_archives_extend_url/$__mysql_install_pkgname_lcommon" || exit 1
+wget -P "$__mysql_install_tmp_path" "$__mysql_archives_extend_url/$__mysql_install_pkgname_libmysqlclient18" || exit 1
+wget -P "$__mysql_install_tmp_path" "$__mysql_archives_extend_url/$__mysql_install_pkgname_communityclient" || exit 1
+wget -P "$__mysql_install_tmp_path" "$__mysql_archives_extend_url/$__mysql_install_pkgname_client" || exit 1
+wget -P "$__mysql_install_tmp_path" "$__mysql_archives_extend_url/$__mysql_install_pkgname_communityserver" || exit 1
+wget -P "$__mysql_install_tmp_path" "$__mysql_archives_extend_url/$__mysql_install_pkgname_server" || exit 1
 
-apt install -y $__mysql_install_tmp_path/$__mysql_install_pkgname_lcommon $__mysql_install_tmp_path/$__mysql_install_pkgname_libmysqlclient18 $__mysql_install_tmp_path/$__mysql_install_pkgname_communityclient $__mysql_install_tmp_path/$__mysql_install_pkgname_client $__mysql_install_tmp_path/$__mysql_install_pkgname_communityserver $__mysql_install_tmp_path/$__mysql_install_pkgname_server || exit 1
+apt install -y "$__mysql_install_tmp_path/$__mysql_install_pkgname_lcommon" "$__mysql_install_tmp_path/$__mysql_install_pkgname_libmysqlclient18" "$__mysql_install_tmp_path/$__mysql_install_pkgname_communityclient" "$__mysql_install_tmp_path/$__mysql_install_pkgname_client" "$__mysql_install_tmp_path/$__mysql_install_pkgname_communityserver" "$__mysql_install_tmp_path/$__mysql_install_pkgname_server" || exit 1
 systemctl enable mysql || exit 1
 
 echo "Holding MySQL Server components." || exit 1

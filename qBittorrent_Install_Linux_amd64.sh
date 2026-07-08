@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 wget -O /usr/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/x86_64-qbittorrent-nox
 
 chmod +x /usr/bin/qbittorrent-nox
@@ -22,4 +24,5 @@ SyslogIdentifier=qbittorrent-nox
 WantedBy=multi-user.target
 EOF
 
+systemctl daemon-reload
 systemctl enable qbittorrent

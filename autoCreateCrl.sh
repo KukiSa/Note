@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #-------------------------------------------------------
 # Requirement:  `openssl`
-# Note:         `openssl` commond is used.
+# Note:         `openssl` command is used.
 #-------------------------------------------------------
 # Function:     Use OpenSSL to generate a CRL from a
 #               configuration file.

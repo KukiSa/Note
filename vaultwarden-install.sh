@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 
 set -eo pipefail
-trap 'rm -rf $__vw_temp_path; unset __port; unset __string_text; unset __vw_uuid_temp; unset __vw_temp_path; unset __vw_temp_out; unset __dbchoice; unset __dbtype; unset __std_add; unset __dburl; unset __dbuser; unset __dbpwd; unset __dbname; unset __dbhost; unset __dbport; unset __srvfqdn; unset __wsport; unset __rkport; unset __admin_token' EXIT
-stty erase ^?
+cleanup() {
+    if [ -n "${__vw_temp_path:-}" ]; then
+        rm -rf -- "$__vw_temp_path"
+    fi
+    unset __port __string_text __vw_uuid_temp __vw_temp_path __vw_temp_out __dbchoice __dbtype __std_add __dburl __dbuser __dbpwd __dbname __dbhost __dbport __srvfqdn __wsport __rkport __admin_token
+}
+trap cleanup EXIT
+stty erase ^? 2>/dev/null || true
 
 port_test() {
     local __port=$1
@@ -39,7 +45,7 @@ pkg_ins() {
     fi
     source /etc/os-release || source /usr/lib/os-release || exit 1
     if [[ $ID == "centos"  || $ID == "amzn"  || $ID == "ol" ]]; then
-        yum update
+        yum update -y
         yum install -y coreutils curl iproute jq openssl util-linux
     elif [[ $ID == "debian" || $ID == "ubuntu" ]]; then
         apt update
@@ -53,15 +59,15 @@ pkg_ins() {
 
 env_pre() {
     __vw_uuid_temp="$(uuidgen | tr -d '-')"
-    __vw_temp_path="$(mktemp -d -t bash-private-$__vw_uuid_temp-$(basename $0)-XXXXXX)"
+    __vw_temp_path="$(mktemp -d -t "bash-private-$__vw_uuid_temp-$(basename "$0")-XXXXXX")"
     __vw_temp_out="$__vw_temp_path/output"
-    mkdir $__vw_temp_out
+    mkdir "$__vw_temp_out"
 }
 
 install_check() {
     if [ -f /var/lib/vaultwarden/version.json ]; then
-        curl -s https://hub.docker.com/v2/repositories/vaultwarden/server/tags/alpine | jq -r '.images[] | select(.architecture == "amd64") | {architecture, digest}' > $__vw_temp_path/latest.json
-        if diff $__vw_temp_path/latest.json /var/lib/vaultwarden/version.json; then
+        curl -s https://hub.docker.com/v2/repositories/vaultwarden/server/tags/alpine | jq -r '.images[] | select(.architecture == "amd64") | {architecture, digest}' > "$__vw_temp_path/latest.json"
+        if diff "$__vw_temp_path/latest.json" /var/lib/vaultwarden/version.json; then
             echo "Vaultwarden is installed and up to date, exiting..."
             exit 1
         else
@@ -107,20 +113,20 @@ get_info() {
             ;;
         esac
     done
-    if [ $__dbtype == "sqlite" ]; then
+    if [ "$__dbtype" == "sqlite" ]; then
         read -rp "SQLite Database File Path (Default: data/db.sqlite3):" __dburl
         [ -z "$__dburl" ] && __dburl="data/db.sqlite3"
     else
         read -rp "Database User:" __dbuser
-        __dbuser=$(null_check $__dbuser)
+        __dbuser=$(null_check "$__dbuser")
         read -rp "Database Password:" __dbpwd
-        __dbpwd=$(null_check $__dbpwd)
+        __dbpwd=$(null_check "$__dbpwd")
         read -rp "Database Name:" __dbname
-        __dbname=$(null_check $__dbname)
+        __dbname=$(null_check "$__dbname")
         read -rp "Database Host (Default: 127.0.0.1):" __dbhost
         [ -z "$__dbhost" ] && __dbhost="127.0.0.1"
         read -rp "Database Port (Default: 3306 or 5432):" __dbport
-        if [ $__dbtype == "postgresql" ]; then
+        if [ "$__dbtype" == "postgresql" ]; then
             [ -z "$__dbport" ] && __dbport="5432"
         else
             [ -z "$__dbport" ] && __dbport="3306"
@@ -131,14 +137,14 @@ get_info() {
     [ -z "$__srvfqdn" ] && __srvfqdn="vaultwarden.example.com"
     read -rp "Websocket Port (Default: 3012):" __wsport
     [ -z "$__wsport" ] && __wsport="3012"
-    __wsport=$(port_test $__wsport)
+    __wsport=$(port_test "$__wsport")
     read -rp "Rocket Port (Default: 8000):" __rkport
     [ -z "$__rkport" ] && __rkport="8000"
-    __rkport=$(port_test $__rkport)
+    __rkport=$(port_test "$__rkport")
     while true; do
-        if [ $__rkport == $__wsport ]; then
+        if [ "$__rkport" == "$__wsport" ]; then
             read -rp "Rocket Port and Websocket Port cannot be the same, please re-enter Rocket Port:" __rkport
-            __rkport=$(port_test $__rkport)
+            __rkport=$(port_test "$__rkport")
         else
             break
         fi
@@ -147,15 +153,15 @@ get_info() {
 }
 
 main_install() {
-    curl -s https://hub.docker.com/v2/repositories/vaultwarden/server/tags/alpine | jq -r '.images[] | select(.architecture == "amd64") | {architecture, digest}' > $__vw_temp_path/latest.json
-    curl -o $__vw_temp_path/docker-image-extract https://raw.githubusercontent.com/jjlin/docker-image-extract/main/docker-image-extract
-    chmod +x $__vw_temp_path/docker-image-extract
-    $__vw_temp_path/docker-image-extract -o $__vw_temp_out vaultwarden/server:alpine
-    cp -f $__vw_temp_out/vaultwarden /usr/bin/vaultwarden
+    curl -s https://hub.docker.com/v2/repositories/vaultwarden/server/tags/alpine | jq -r '.images[] | select(.architecture == "amd64") | {architecture, digest}' > "$__vw_temp_path/latest.json"
+    curl -o "$__vw_temp_path/docker-image-extract" https://raw.githubusercontent.com/jjlin/docker-image-extract/main/docker-image-extract
+    chmod +x "$__vw_temp_path/docker-image-extract"
+    "$__vw_temp_path/docker-image-extract" -o "$__vw_temp_out" vaultwarden/server:alpine
+    cp -f "$__vw_temp_out/vaultwarden" /usr/bin/vaultwarden
     chmod +x /usr/bin/vaultwarden
     mkdir -p /var/lib/vaultwarden/data /var/lib/vaultwarden/web-vault
-    cp -r $__vw_temp_out/web-vault/. /var/lib/vaultwarden/web-vault
-    useradd -s /sbin/nologin -M vaultwarden
+    cp -r "$__vw_temp_out/web-vault/." /var/lib/vaultwarden/web-vault
+    id -u vaultwarden >/dev/null 2>&1 || useradd -s /sbin/nologin -M vaultwarden
     chown -R vaultwarden /var/lib/vaultwarden/data
     chown -R vaultwarden /var/lib/vaultwarden/web-vault
     cat > /etc/vaultwarden.env <<EOF
@@ -179,8 +185,8 @@ EOF
 [Unit]
 Description=Vaultwarden Server
 Documentation=https://github.com/dani-garcia/vaultwarden
-After=network.target $__std_add
-Requires=$__std_add
+After=network.target${__std_add:+ $__std_add}
+${__std_add:+Requires=$__std_add}
 
 [Service]
 User=vaultwarden
@@ -200,9 +206,6 @@ AmbientCapabilities=CAP_NET_BIND_SERVICE
 [Install]
 WantedBy=multi-user.target
 EOF
-    if [ $__dbtype == "sqlite" ]; then
-        sed -i '5d' /etc/systemd/system/vaultwarden.service
-    fi
     curl -s https://hub.docker.com/v2/repositories/vaultwarden/server/tags/alpine | jq -r '.images[] | select(.architecture == "amd64") | {architecture, digest}' > /var/lib/vaultwarden/version.json
     systemctl daemon-reload
     systemctl enable vaultwarden
